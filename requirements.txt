@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+gunicorn ; platform_system!="Windows"
+uvloop ; platform_system!="Windows"
+sqlalchemy
+asyncpg
+icecream
+pydantic
+pydantic[email]
+pydantic-settings
+python-dotenv
+aio-pika
+git+https://github.com/Siva-Rajan-R/hyperlocal_platform

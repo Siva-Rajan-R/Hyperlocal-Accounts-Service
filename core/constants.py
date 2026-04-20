@@ -1,0 +1,2 @@
+ENV_PREFIX="ACCOUNTS_"
+SERVICE_NAME="accounts"
