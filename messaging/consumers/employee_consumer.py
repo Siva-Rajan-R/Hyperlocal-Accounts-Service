@@ -17,9 +17,10 @@ class EmployeesConsumer(CommonBaseConsumerModel):
         async with AsyncAccountDbLocalSession() as session:
             event_data:dict=self.payload['data']
             employees_data:dict=event_data['employees']
-            employess_base_datas:dict=employees_data.get("datas")
             ic(f"Create : Headers=> {self.headers}, Payload => {self.payload} ")
-            if not employess_base_datas.get('email') or not employess_base_datas.get('name') or not employess_base_datas.get('mobile_number') or not employees_data.get('source'):
+
+            # validating the payload for creating accounts for employees, if any of the required field is missing then it will raise a bussiness error
+            if not employees_data.get('email') or not employees_data.get('name') or not employees_data.get('mobile_number') or not employees_data.get('source'):
                 raise BussinessError(
                     type=ErrorTypeSEnum.BUSSINESS_ERROR,
                     error=SagaStateErrorTypDict(
@@ -29,7 +30,13 @@ class EmployeesConsumer(CommonBaseConsumerModel):
                     )
                 )
             
-            data=CreateAccountSchema(**employess_base_datas)
+            data=CreateAccountSchema(
+                email=employees_data['email'],
+                name=employees_data['name'],
+                mobile_number=employees_data['mobile_number']
+            )
+
+
             res:dict=await AccountService(session=session).get_or_create(
                 data=data,
                 source=employees_data['source']
@@ -42,6 +49,7 @@ class EmployeesConsumer(CommonBaseConsumerModel):
                 owner_name=owner['name']
             res['owner_name']=owner_name
             r_key=generate_routingkey(domain="accounts",work_for="employees",action=RoutingkeyActions.CREATE,state=RoutingkeyState.COMPLETED,version=RoutingkeyVersions.V1)
+            ic(res)
             return SuccessMessagingTypDict(
                 response=res,
                 emit_success=True,
@@ -58,7 +66,8 @@ class EmployeesConsumer(CommonBaseConsumerModel):
         async with AsyncAccountDbLocalSession() as session:
             event_data:dict=self.payload['data']
             employees_data:dict=event_data.get("employees")
-            employess_base_datas:dict=employees_data.get("datas")
+            ic(employees_data)
+
             if not employees_data:
                 raise BussinessError(
                     type=ErrorTypeSEnum.BUSSINESS_ERROR,
@@ -70,7 +79,8 @@ class EmployeesConsumer(CommonBaseConsumerModel):
                 )
             
             ic(f"Create : Headers=> {self.headers}, Payload => {self.payload} ")
-            if not employees_data.get('account_id'):
+            ic(not employees_data.get('account_id'))
+            if employees_data.get('account_id',None) is None:
                 raise BussinessError(
                     type=ErrorTypeSEnum.BUSSINESS_ERROR,
                     error=SagaStateErrorTypDict(

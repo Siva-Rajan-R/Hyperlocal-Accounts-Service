@@ -21,7 +21,6 @@ class AccountService(BaseServiceModel):
         self.account_repo_obj=AccountRepo(session=session)
 
     @catch_errors
-    @start_db_transaction
     async def create(self,data:CreateAccountSchema,source:str):
         account_id:str=generate_uuid()
         res=await self.account_repo_obj.create(data=CreateAccountDbSchema(**data.model_dump(),source=source,id=account_id,accessed=[]))
