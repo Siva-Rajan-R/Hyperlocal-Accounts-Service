@@ -59,6 +59,7 @@ class RabbitMQMessagingConfig:
             routing_key=routing_key
         )
         ic(f"Event published successfully ✅ => {routing_key}, {exchange_name}")
+        return True
 
 
     async def consume_event(self,queue_name:str,handler):
